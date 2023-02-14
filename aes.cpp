@@ -1,14 +1,18 @@
 #include <iostream>
 
-//?? bit key - ?? rounds
+//128 bit key - 10 rounds
+//192 bit key - 12 rounds
+//256 bit key - 14 rounds
 
 //AES encryption (input: 128 bit/16 byte blocks):
+//0. Get 16 byte grid
 //1. SubBytes
 //2. ShiftRows
 //3. MixColumns (omit for last round)
 //4. Add Round Key
 
 //AES decryption (input: 128 bit/16 byte blocks):
+//0. Get 16 byte grid
 //1. Add Round Key
 //2. Inverse MixColumns
 //3. ShiftRows
