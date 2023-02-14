@@ -1,11 +1,16 @@
 #include <iostream>
-
+/*Hello-World!*/
 //128 bit key - 10 rounds
 //192 bit key - 12 rounds
 //256 bit key - 14 rounds
 
 //AES encryption (input: 128 bit/16 byte blocks):
 //0. Get 16 byte grid
+// Ex grid for Hello-World!:
+//  [ H | o | r | * |
+//  | e | - | l | * |
+//  | l | W | d | * |
+//  | l | o | ! | * ]
 //1. SubBytes
 //2. ShiftRows
 //3. MixColumns (omit for last round)
