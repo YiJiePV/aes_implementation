@@ -10,6 +10,35 @@ using std::endl;
 //256 bit key - 14 rounds
 
 //AES encryption (input: 128 bit/16 bytes of text input):
+void ShiftRows(uint8_t state[4][4]) {
+  uint8_t temp[4];
+  // Shift first row by 0
+  // Shift second row by 1
+  temp[0] = state[1][0];
+  temp[1] = state[1][1];
+  temp[2] = state[1][2];
+  temp[3] = state[1][3];
+  for (int i = 0; i < 4; i++) {
+    state[1][i] = temp[(i + 1) % 4];
+  }
+  // Shift third row by 2
+  temp[0] = state[2][0];
+  temp[1] = state[2][1];
+  temp[2] = state[2][2];
+  temp[3] = state[2][3];
+  for (int i = 0; i < 4; i++) {
+    state[2][i] = temp[(i + 2) % 4];
+  }
+  // Shift fourth row by 3
+  temp[0] = state[3][0];
+  temp[1] = state[3][1];
+  temp[2] = state[3][2];
+  temp[3] = state[3][3];
+  for (int i = 0; i < 4; i++) {
+    state[3][i] = temp[(i + 3) % 4];
+  }
+}
+
 string encrypt(const string& input){
   //0. Get 16 byte grid
   // Ex grid for Hello-World!:
