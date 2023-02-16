@@ -4,7 +4,28 @@
 using std::string;
 using std::cout;
 using std::endl;
-/*Hello-World!*/
+
+char multiplyChar(char c, int i){
+  if(i == 1){
+    return c;
+  }
+  else if(i == 2){
+    int bit = (c >> 8) & 1;
+    if(bit == 1){
+      return (c << 1)^27;
+    }
+    return c << 1;
+  }
+  else if(i == 3){
+    int bit = (c >> 8) & 1;
+    if(bit == 1){
+      return ((c << 1)^27)^c;
+    }
+    return (c << 1)^c;
+  }
+  return i;
+}
+
 //128 bit key - 10 rounds
 //192 bit key - 12 rounds
 //256 bit key - 14 rounds
@@ -39,6 +60,7 @@ string encrypt(const string& input){
   //1. SubBytes
   //2. ShiftRows
   //3. MixColumns (omit for last round)
+  
   //4. Add Round Key
   return ""; //ciphertext
 }
