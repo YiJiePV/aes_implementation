@@ -5,27 +5,7 @@
 using std::string;
 using std::cout;
 using std::endl;
-
-char multiplyChar(char c, int i){
-  if(i == 1){
-    return c;
-  }
-  else if(i == 2){
-    int bit = (c >> 8) & 1;
-    if(bit == 1){
-      return (c << 1)^27;
-    }
-    return c << 1;
-  }
-  else if(i == 3){
-    int bit = (c >> 8) & 1;
-    if(bit == 1){
-      return ((c << 1)^27)^c;
-    }
-    return (c << 1)^c;
-  }
-  return i;
-}
+using std::hex;
 
 //128 bit key - 10 rounds
 //192 bit key - 12 rounds
@@ -82,6 +62,39 @@ void ShiftRows(uint8_t state[4][4]) {
     state[3][i] = temp[(i + 3) % 4];
   }
 }
+
+//Function to do multiplication of number to grid element
+uint8_t multiplyChar(uint8_t c, int i){
+  //for encryption (plus the return at the very end)
+  if(i == 2){
+    int bit = (c >> 8) & 1;
+    if(bit == 1){
+      return (c << 1)^0x1B;
+    }
+    return c << 1;
+  }
+  else if(i == 3){
+    int bit = (c >> 8) & 1;
+    if(bit == 1){
+      return (c << 1)^0x1B^c;
+    }
+    return (c << 1)^c;
+  }//for decryption
+  else if(i == 9){
+    return (c << 3)^c;
+  }
+  else if(i == 11){
+    return (((c << 2)^c) << 1)^c;
+  }
+  else if(i == 13){
+    return (((c << 1)^c) << 2)^c;
+  }
+  else if(i == 14){
+    return ((((c << 1)^c) << 1)^c) << 1;
+  }
+  return c; //i == 1
+}
+
 //AES encryption (input: 128 bit/16 bytes of text input):
 string encrypt(const string& input){
   //0. Get 16 byte grid
@@ -90,7 +103,7 @@ string encrypt(const string& input){
   //  | e | - | l | * |
   //  | l | W | d | * |
   //  | l | o | ! | * ]
-  char grid[4][4];
+  uint8_t grid[4][4];
   int index = 0;
   for(int i = 0; i < 4; i++){
     for(int j = 0; j < 4; j++){
@@ -119,7 +132,7 @@ string encrypt(const string& input){
 //AES decryption (cipher: 128 bit/16 bytes of ciphertext):
 string decrypt(string cipher){
   //0. Get 16 byte grid
-  char grid[4][4];
+  uint8_t grid[4][4];
   int index = 0;
   for(int i = 0; i < 4; i++){
     for(int j = 0; j < 4; j++){
@@ -142,6 +155,6 @@ string decrypt(string cipher){
 //command line user interface
 int main() {
   //get file input
-    encrypt("Hello-World!");
+    cout << multiplyChar(0x30, 3) << endl;
     return 0;
 }
