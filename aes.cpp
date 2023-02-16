@@ -123,7 +123,9 @@ string encrypt(const string& input){
   // cout << "| " << grid[3][0] << " | " << grid[3][1] << " | " << grid[3][2] << " | " << grid[3][3] << " ]" << endl;
   //for each round:
   //1. SubBytes
+SubBytes(grid);
   //2. ShiftRows
+ShiftRows(grid);
   //3. MixColumns (omit for last round)
   
   //4. Add Round Key
@@ -155,6 +157,6 @@ string decrypt(string cipher){
 //command line user interface
 int main() {
   //get file input
-    cout << multiplyChar(0x30, 3) << endl;
+    encrypt("Hello-World!");
     return 0;
 }
