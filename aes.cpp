@@ -1,16 +1,19 @@
 #include <iostream>
 #include <string>
 #include <cstdint>
+#include <vector>
 
 using std::string;
 using std::cout;
 using std::endl;
 using std::hex;
+using std::vector;
 
 //128 bit key - 10 rounds
 //192 bit key - 12 rounds
 //256 bit key - 14 rounds
-
+const string key = "Thats my Kung Fu";
+const string text = "Two One Nine Two";
 //list of all possible 8bits
 const uint8_t sbox[256] = {
   0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -64,18 +67,18 @@ void ShiftRows(uint8_t state[4][4]) {
 }
 
 //Function to do multiplication of number to grid element
-uint8_t multiplyChar(uint8_t c, int i){
+uint8_t MultiplyChar(uint8_t c, int i){
   //for encryption (plus the return at the very end)
   if(i == 2){
-    int bit = (c >> 8) & 1;
-    if(bit == 1){
-      return (c << 1)^0x1B;
+    int bit = (c >> 7);
+    if(bit){
+      return (c << 1) ^ 0x1B;
     }
     return c << 1;
   }
   else if(i == 3){
-    int bit = (c >> 8) & 1;
-    if(bit == 1){
+    int bit = (c & 0x80);
+    if(bit){
       return (c << 1)^0x1B^c;
     }
     return (c << 1)^c;
@@ -95,8 +98,53 @@ uint8_t multiplyChar(uint8_t c, int i){
   return c; //i == 1
 }
 
+void MixColumns(uint8_t grid[4][4], vector<vector<uint8_t>>& output){
+  int matrix[4][4] = {{2, 3, 1, 1},
+                      {1, 2, 3, 1},
+                      {1, 1, 2, 3},
+                      {3, 1, 1, 2}};
+  
+  uint8_t r0 = 0;
+  for(int i = 0; i < 4; i++){//each column of grid
+    for(int j = 0; j < 4; j++){//row
+      for(int k = 0; k < 4; k++){
+        r0 ^= MultiplyChar(grid[k][i], matrix[j][k]);
+      }
+      output[i][j] = r0;
+      r0 = 0;
+    }
+  }
+}
+
+void ExpandKey(string key, vector<string>& keys){
+  keys.push_back(key);
+  for(int i = 0; i < 10; i++){
+    //TBD
+  }
+}
+
+void AddKey(vector<vector<uint8_t>>& grid, string key){
+  int index = 0;
+  for(int i = 0; i < 4; i++){
+    for(int j = 0; j < 4; j++){
+      grid[j][i] ^= key.at(index);
+      index++;
+    }
+  }
+}
+
+void AddKeyFirst(uint8_t grid[4][4], string key){
+  int index = 0;
+  for(int i = 0; i < 4; i++){
+    for(int j = 0; j < 4; j++){
+      grid[j][i] ^= key.at(index);
+      index++;
+    }
+  }
+}
+
 //AES encryption (input: 128 bit/16 bytes of text input):
-string encrypt(const string& input){
+string Encrypt(const string& input){
   //0. Get 16 byte grid
   // Ex grid for Hello-World!:
   //  [ H | o | r | * |
@@ -122,17 +170,36 @@ string encrypt(const string& input){
   // cout << "| " << grid[2][0] << " | " << grid[2][1] << " | " << grid[2][2] << " | " << grid[2][3] << " |" << endl;
   // cout << "| " << grid[3][0] << " | " << grid[3][1] << " | " << grid[3][2] << " | " << grid[3][3] << " ]" << endl;
   //for each round:
+  AddKeyFirst(grid, key);
+  cout << hex << "[ " << int(grid[0][0]) << " | " << int(grid[0][1]) << " | " << int(grid[0][2]) << " | " << int(grid[0][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[1][0]) << " | " << int(grid[1][1]) << " | " << int(grid[1][2]) << " | " << int(grid[1][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
   //1. SubBytes
-SubBytes(grid);
+  SubBytes(grid);
+  cout << hex << "[ " << int(grid[0][0]) << " | " << int(grid[0][1]) << " | " << int(grid[0][2]) << " | " << int(grid[0][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[1][0]) << " | " << int(grid[1][1]) << " | " << int(grid[1][2]) << " | " << int(grid[1][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
   //2. ShiftRows
-ShiftRows(grid);
+  ShiftRows(grid);
+  cout << hex << "[ " << int(grid[0][0]) << " | " << int(grid[0][1]) << " | " << int(grid[0][2]) << " | " << int(grid[0][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[1][0]) << " | " << int(grid[1][1]) << " | " << int(grid[1][2]) << " | " << int(grid[1][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
+  cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
   //3. MixColumns (omit for last round)
-  
+  vector<vector<uint8_t>> result = {{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0}};
+  MixColumns(grid, result);
   //4. Add Round Key
+  //AddKey(result, key);
+  cout << hex << int(result[0][0]) << ", " << int(result[0][1]) << ", "  << int(result[0][2]) << ", "  << int(result[0][3]) << endl;
+  cout << hex << int(result[1][0]) << ", " << int(result[1][1]) << ", "  << int(result[1][2]) << ", "  << int(result[1][3]) << endl;
+  cout << hex << int(result[2][0]) << ", " << int(result[2][1]) << ", "  << int(result[2][2]) << ", "  << int(result[2][3]) << endl;
+  cout << hex << int(result[3][0]) << ", " << int(result[3][1]) << ", "  << int(result[3][2]) << ", "  << int(result[3][3]) << endl;
   return ""; //ciphertext
 }
 //AES decryption (cipher: 128 bit/16 bytes of ciphertext):
-string decrypt(string cipher){
+string Decrypt(string cipher){
   //0. Get 16 byte grid
   uint8_t grid[4][4];
   int index = 0;
@@ -157,6 +224,18 @@ string decrypt(string cipher){
 //command line user interface
 int main() {
   //get file input
-    encrypt("Hello-World!");
+
+  // uint8_t grid[4][4] = {{0xd4, 0xd4, 0xd4, 0xd4}, 
+  //                     {0xbf, 0xbf, 0xbf, 0xbf}, 
+  //                     {0x5d, 0x5d, 0x5d, 0x5d}, 
+  //                     {0x30, 0x30, 0x30, 0x30}};
+  // vector<vector<uint8_t>> result = {{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0}};
+  // MixColumns(grid, result);
+  // cout << hex << int(result[0][0]) << endl;
+  // cout << hex << int(result[0][0]) << ", " << int(result[0][1]) << ", "  << int(result[0][2]) << ", "  << int(result[0][3]) << endl;
+  // cout << hex << int(result[1][0]) << ", " << int(result[1][1]) << ", "  << int(result[1][2]) << ", "  << int(result[1][3]) << endl;
+  // cout << hex << int(result[2][0]) << ", " << int(result[2][1]) << ", "  << int(result[2][2]) << ", "  << int(result[2][3]) << endl;
+  // cout << hex << int(result[3][0]) << ", " << int(result[3][1]) << ", "  << int(result[3][2]) << ", "  << int(result[3][3]) << endl;
+  Encrypt(text);
     return 0;
 }
