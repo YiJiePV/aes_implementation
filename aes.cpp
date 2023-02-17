@@ -2,6 +2,7 @@
 #include <string>
 #include <cstdint>
 #include <vector>
+#include <fstream>
 
 using std::string;
 using std::cout;
@@ -47,41 +48,41 @@ const uint8_t sbox[256] =
 	0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16
 };
 //Function to substitute the bytes
-void SubBytes(uint8_t state[4][4]) {
+void SubBytes(uint8_t matrix[4][4]) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
-      state[i][j] = sbox[state[i][j]];
+      matrix[i][j] = sbox[matrix[i][j]];
     }
   }
 }
 
 /// Function to Shift the rows
-void ShiftRows(uint8_t state[4][4]) {
+void ShiftRows(uint8_t matrix[4][4]) {
   uint8_t temp[4];
   // Shift first row by 0
   // Shift second row by 1
-  temp[0] = state[1][0];
-  temp[1] = state[1][1];
-  temp[2] = state[1][2];
-  temp[3] = state[1][3];
+  temp[0] = matrix[1][0];
+  temp[1] = matrix[1][1];
+  temp[2] = matrix[1][2];
+  temp[3] = matrix[1][3];
   for (int i = 0; i < 4; i++) {
-    state[1][i] = temp[(i + 1) % 4];
+    matrix[1][i] = temp[(i + 1) % 4];
   }
   // Shift third row by 2
-  temp[0] = state[2][0];
-  temp[1] = state[2][1];
-  temp[2] = state[2][2];
-  temp[3] = state[2][3];
+  temp[0] = matrix[2][0];
+  temp[1] = matrix[2][1];
+  temp[2] = matrix[2][2];
+  temp[3] = matrix[2][3];
   for (int i = 0; i < 4; i++) {
-    state[2][i] = temp[(i + 2) % 4];
+    matrix[2][i] = temp[(i + 2) % 4];
   }
   // Shift fourth row by 3
-  temp[0] = state[3][0];
-  temp[1] = state[3][1];
-  temp[2] = state[3][2];
-  temp[3] = state[3][3];
+  temp[0] = matrix[3][0];
+  temp[1] = matrix[3][1];
+  temp[2] = matrix[3][2];
+  temp[3] = matrix[3][3];
   for (int i = 0; i < 4; i++) {
-    state[3][i] = temp[(i + 3) % 4];
+    matrix[3][i] = temp[(i + 3) % 4];
   }
 }
 
@@ -301,7 +302,7 @@ string Encrypt(const string& input){
     cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
     cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
   }
-  return ""; //ciphertext
+  return text; //ciphertext
 }
 //AES decryption (cipher: 128 bit/16 bytes of ciphertext):
 string Decrypt(string cipher){
@@ -328,7 +329,17 @@ string Decrypt(string cipher){
 }
 //command line user interface
 int main() {
+string text;
   //get file input
+std::fstream myfile;
+ myfile.open("hellobaby.txt");
+ if (myfile.is_open()){
+ 
+ while(getline(myfile, text)){
+     
+ }
+ myfile.close();
+   }
 
   // uint8_t grid[4][4] = {{0xd4, 0xd4, 0xd4, 0xd4}, 
   //                     {0xbf, 0xbf, 0xbf, 0xbf}, 
