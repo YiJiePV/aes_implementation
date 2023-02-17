@@ -130,7 +130,7 @@ void MixColumns(uint8_t grid[4][4], vector<vector<uint8_t>>& output){
       for(int k = 0; k < 4; k++){
         r0 ^= MultiplyChar(grid[k][i], matrix[j][k]);
       }
-      output[i][j] = r0;
+      output[j][i] = r0;
       r0 = 0;
     }
   }
@@ -211,7 +211,7 @@ void AddKey(vector<vector<uint8_t>>& grid, string key){
   int index = 0;
   for(int i = 0; i < 4; i++){
     for(int j = 0; j < 4; j++){
-      grid[i][j] ^= key.at(index);
+      grid[j][i] ^= key.at(index);
       index++;
     }
   }
@@ -329,17 +329,17 @@ string Decrypt(string cipher){
 }
 //command line user interface
 int main() {
-string text;
-  //get file input
-std::fstream myfile;
- myfile.open("hellobaby.txt");
- if (myfile.is_open()){
+// string text;
+//   //get file input
+// std::fstream myfile;
+//  myfile.open("hellobaby.txt");
+//  if (myfile.is_open()){
  
- while(getline(myfile, text)){
+//  while(getline(myfile, text)){
      
- }
- myfile.close();
-   }
+//  }
+//  myfile.close();
+//    }
 
   // uint8_t grid[4][4] = {{0xd4, 0xd4, 0xd4, 0xd4}, 
   //                     {0xbf, 0xbf, 0xbf, 0xbf}, 
