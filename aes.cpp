@@ -6,6 +6,7 @@
 
 using std::string;
 using std::cout;
+using std::cin;
 using std::endl;
 using std::hex;
 using std::vector;
@@ -525,21 +526,85 @@ string Decrypt(string cipher){
   }
   return text; //regular text
 }
+
+void Writefile(string fileName, string text) {
+    // Open the file in output mode to write the text
+	std::ofstream file(fileName);
+    if (file.is_open()) {
+        // Write the text to the file
+        file << text;
+
+        // Close the file
+        file.close();
+    } else {
+        // Handle file open errors
+        cout << "Error opening file. Please check the file name and try again." << endl;
+    }
+}
+
 //command line user interface
 int main() {
-// string text;
-//   //get file input
-// std::fstream myfile;
-//  myfile.open("hellobaby.txt");
-//  if (myfile.is_open()){
- 
-//  while(getline(myfile, text)){
-     
-//  }
-//  myfile.close();
-//    }
+	string result;
+	 int option;
+    string readfile;
+    string text;
 
-  // uint8_t grid[4][4] = {{0xd4, 0xd4, 0xd4, 0xd4}, 
+    do {
+        cout << "Please choose what you would like to do" << endl;
+        cout << "1. Encrypt file" << endl << "2. Decrypt file" << endl << "3. exit"<< endl;
+
+        cin >> option;
+
+        if (option == 1) {
+            cout << "Choose a file to encrypt" << endl;
+            cin >> readfile;
+
+            // Read the contents of the file into a string
+	    std::ifstream MyReadFile(readfile);
+            string line;
+            while (getline (MyReadFile, line)) {
+                text += line + "\n"; 
+            }
+            MyReadFile.close();
+
+            // Encrypt the text and write it to a new file
+            string result = Encrypt(text);
+            string writefile = "encrypted_" + readfile;
+            Writefile(writefile, result);
+            cout << "Encryption complete. Output written to file: " << writefile << endl;
+        } else if (option == 2) { 
+            cout << "Choose a file to decrypt" << endl;
+            cin >> readfile;
+
+            // Read the contents of the file into a string
+	    std::ifstream MyReadFile(readfile);
+            string line;
+            while (getline (MyReadFile, line)) {
+                text += line + "\n"; 
+            }
+            MyReadFile.close();
+
+            // Decrypt the text and write it to a new file
+            string result = Decrypt(text);
+            string writefile = "Decrypted_" + readfile;
+            Writefile(writefile, result);
+            cout << "Decryption complete. Output written to file: " << writefile << endl;	
+		
+        } else if (option != 3) {
+            cout << "Invalid option. Please choose again." << endl;
+        }
+    } while (option != 3);
+
+    cout << "You have successfully exited the menu" << endl;
+
+
+
+  result = Decrypt(result);
+  cout << result << endl;
+  
+
+
+	// uint8_t grid[4][4] = {{0xd4, 0xd4, 0xd4, 0xd4}, 
   //                     {0xbf, 0xbf, 0xbf, 0xbf}, 
   //                     {0x5d, 0x5d, 0x5d, 0x5d}, 
   //                     {0x30, 0x30, 0x30, 0x30}};
@@ -550,9 +615,9 @@ int main() {
   // cout << hex << int(result[1][0]) << ", " << int(result[1][1]) << ", "  << int(result[1][2]) << ", "  << int(result[1][3]) << endl;
   // cout << hex << int(result[2][0]) << ", " << int(result[2][1]) << ", "  << int(result[2][2]) << ", "  << int(result[2][3]) << endl;
   // cout << hex << int(result[3][0]) << ", " << int(result[3][1]) << ", "  << int(result[3][2]) << ", "  << int(result[3][3]) << endl;
-  string result = Decrypt(Encrypt(text));
-  cout << result << endl;
-  // vector<string> keys;
+ 
+ 
+ // vector<string> keys;
   // ExpandKey(key, keys);
   // for(int i = 0; i < keys.size(); i++){
   //   for(int j = 0; j < 16; j++){
@@ -562,3 +627,5 @@ int main() {
   // }
   return 0;
 }
+
+
