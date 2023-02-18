@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 using std::string;
 using std::cout;
@@ -229,7 +230,7 @@ void AddKeyFirst(uint8_t grid[4][4], string key){
 }
 
 //AES encryption (input: 128 bit/16 bytes of text input):
-string Encrypt(const string& input){
+vector<uint8_t> Encrypt(const string& input){
   //0. Get 16 byte grid
   // Ex grid for Hello-World!:
   //  [ H | o | r | * |
@@ -303,7 +304,7 @@ string Encrypt(const string& input){
     // cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
     // cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
   }
-  string cipher = "";
+  vector<uint8_t> cipher;
   for(int c = 0; c < 4; c++){
     for(int r = 0; r < 4; r++){
       cipher.push_back(char(grid[r][c]));
@@ -477,7 +478,7 @@ void InverseSubBytes(uint8_t matrix[4][4]) {
   }
 }
 //AES decryption (cipher: 128 bit/16 bytes of ciphertext):
-string Decrypt(string cipher){
+string Decrypt(vector<uint8_t> cipher){
   //0. Get 16 byte grid
   uint8_t grid[4][4];
   int index = 0;
@@ -561,32 +562,76 @@ int main() {
 
             // Read the contents of the file into a string
 	    std::ifstream MyReadFile(readfile);
-            string line;
-            while (getline (MyReadFile, line)) {
-                text += line + "\n"; 
-            }
+      std::ostringstream ss;
+            ss << MyReadFile.rdbuf();
+            string line = ss.str();
+            
+            // while (getline (MyReadFile, line)) {
+            //     text += line + "\n"; 
+            // }
             MyReadFile.close();
 
-            // Encrypt the text and write it to a new file
-            string result = Encrypt(text);
-            string writefile = "encrypted_" + readfile;
-            Writefile(writefile, result);
+            // Encrypt the text and write it to a new file (text to binary)
+            vector<uint8_t> result;
+            if(text.length() <= 16){
+              result = Encrypt(text);
+            }
+            else{
+              for(int i = 0; i < text.length(); i += 16){
+                if(i + 15 > text.length()){
+                  vector<uint8_t> temp = Encrypt(text.substr(i));
+                  for(int j = 0; j < 16; j++){
+                    result.push_back(temp.at(j));
+                  }
+                }
+                else{
+                  vector<uint8_t> temp = Encrypt(text.substr(i, 16));
+                  for(int j = 0; j < 16; j++){
+                    result.push_back(temp.at(j));
+                  }
+                }
+              }
+            }
+            string writefile = "encrypted_" + readfile.substr(0, readfile.length() - 4) + ".bin";
+            FILE* fp = fopen(writefile.c_str(), "wb");
+            for(int i = 0; i < result.size(); i++){
+              fwrite(&result.at(i), sizeof(uint8_t), 1, fp);
+            }
+            fclose(fp);            
             cout << "Encryption complete. Output written to file: " << writefile << endl;
         } else if (option == 2) { 
             cout << "Choose a file to decrypt" << endl;
             cin >> readfile;
 
-            // Read the contents of the file into a string
-	    std::ifstream MyReadFile(readfile);
-            string line;
-            while (getline (MyReadFile, line)) {
-                text += line + "\n"; 
-            }
-            MyReadFile.close();
+            // Read the contents of the file into a vector
+	          FILE* fp = fopen(readfile.c_str(), "rb");
+            uint8_t ch;
+            vector<uint8_t> line;
+            int done;
+            do{
+                done = fread(&ch, sizeof(uint8_t), 1, fp);
+                line.push_back(ch);
+            }while (done != 0);
+            fclose(fp);
 
             // Decrypt the text and write it to a new file
-            string result = Decrypt(text);
-            string writefile = "Decrypted_" + readfile;
+            string result = "";
+            if(line.size() <= 16){
+              result = Decrypt(line);
+            }
+            else{
+              for(int i = 0; i < line.size(); i += 16){
+                if(i + 15 > line.size()){
+                  vector<uint8_t> temp(line.begin() + i, line.end());
+                  result.append(Decrypt(temp));
+                }
+                else{
+                  vector<uint8_t> temp(line.begin() + i, line.begin() + i + 15);
+                  result.append(Decrypt(temp));
+                }
+              }
+            }
+            string writefile = "Decrypted_" + readfile.substr(0, readfile.length() - 4) + ".txt";
             Writefile(writefile, result);
             cout << "Decryption complete. Output written to file: " << writefile << endl;	
 		
@@ -599,8 +644,8 @@ int main() {
 
 
 
-  result = Decrypt(result);
-  cout << result << endl;
+  // result = Decrypt(result);
+  // cout << result << endl;
   
 
 
