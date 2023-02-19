@@ -13,23 +13,8 @@ using std::hex;
 using std::vector;
 
 //128 bit key - 10 rounds
-//192 bit key - 12 rounds
-//256 bit key - 14 rounds
 const string key = "Thats my Kung Fu";
-// const string text = "Two One Nine Two";
 //list of all possible 8bits
-// const uint8_t sbox[256] = {
-//   0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
-//   0xCA, 0x82, 0xC9, 0x7D, 0xFA, 0x59, 0x47, 0xF0, 0xAD, 0xD4, 0xA2, 0xAF, 0x9C, 0xA4, 0x72, 0xC0,
-//   0xB7, 0xFD, 0x93, 0x26, 0x36, 0x3F, 0xF7, 0xCC, 0x34, 0xA5, 0xE5, 0xF1, 0x71, 0xD8, 0x31, 0x15,
-//   0x04, 0xC7, 0x23, 0xC3, 0x18, 0x96, 0x05, 0x9A, 0x07, 0x12, 0x80, 0xE2, 0xEB, 0x27, 0xB2, 0x75,
-//   0x09, 0x83, 0x2C, 0x1A, 0x1B, 0x6E, 0x5A, 0xA0, 0x52, 0x3B, 0xD6, 0xB3, 0x29, 0xE3, 0x2F, 0x84,
-//   0x53, 0xD1, 0x00, 0xED, 0x20, 0xFC, 0xB1, 0x5B, 0x6A, 0xCB, 0xBE, 0x39, 0x4A, 0x4C, 0x58, 0xCF,
-//   0xD0, 0xEF, 0xAA, 0xFB, 0x43, 0x4D, 0x33, 0x85, 0x45, 0xF9, 0x02, 0x7F, 0x50, 0x3C, 0x9F, 0xA8,
-//   0x51, 0xA3, 0x40, 0x8F, 0x92, 0x9D, 0x38, 0xF5, 0xBC, 0xB6, 0xDA, 0x21, 0x10, 0xFF, 0xF3, 0xD2,
-//   0xCD, 0x0C, 0x13, 0xEC, 0x5F, 0x97, 0x44, 0x17, 0xC4, 0xA7, 0x7E, 0x3D, 0x64, 0x5D, 0x19, 0x73,
-//   0x60, 0x81, 0x4F, 0xDC, 0x22, 0x2A, 0x90, 0x88, 0x46, 0xEE, 0xB8, 0x14, 0xDE, 0x5E, 0x0B, 0xDB,
-// };
 const uint8_t sbox[256] =
 {
 	0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -250,40 +235,18 @@ vector<uint8_t> Encrypt(const string& input){
       }
     }
   }
-  //Prints out grid
-  // cout << "[ " << grid[0][0] << " | " << grid[0][1] << " | " << grid[0][2] << " | " << grid[0][3] << " |" << endl;
-  // cout << "| " << grid[1][0] << " | " << grid[1][1] << " | " << grid[1][2] << " | " << grid[1][3] << " |" << endl;
-  // cout << "| " << grid[2][0] << " | " << grid[2][1] << " | " << grid[2][2] << " | " << grid[2][3] << " |" << endl;
-  // cout << "| " << grid[3][0] << " | " << grid[3][1] << " | " << grid[3][2] << " | " << grid[3][3] << " ]" << endl;
-  //for each round:
   vector<string> keys;
   ExpandKey(key, keys);
   AddKeyFirst(grid, keys.at(0));
-  // cout << hex << "[ " << int(grid[0][0]) << " | " << int(grid[0][1]) << " | " << int(grid[0][2]) << " | " << int(grid[0][3]) << " |" << endl;
-  // cout << hex << "| " << int(grid[1][0]) << " | " << int(grid[1][1]) << " | " << int(grid[1][2]) << " | " << int(grid[1][3]) << " |" << endl;
-  // cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
-  // cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
   for(int i = 0; i < 10; i++){
     //1. SubBytes
     SubBytes(grid);
-    // cout << hex << "[ " << int(grid[0][0]) << " | " << int(grid[0][1]) << " | " << int(grid[0][2]) << " | " << int(grid[0][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[1][0]) << " | " << int(grid[1][1]) << " | " << int(grid[1][2]) << " | " << int(grid[1][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
     //2. ShiftRows
     ShiftRows(grid);
-    // cout << hex << "[ " << int(grid[0][0]) << " | " << int(grid[0][1]) << " | " << int(grid[0][2]) << " | " << int(grid[0][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[1][0]) << " | " << int(grid[1][1]) << " | " << int(grid[1][2]) << " | " << int(grid[1][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
     vector<vector<uint8_t>> result = {{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0}};
     if(i != 9){
       //3. MixColumns (omit for last round)
       MixColumns(grid, result);
-      // cout << hex << int(result[0][0]) << ", " << int(result[0][1]) << ", "  << int(result[0][2]) << ", "  << int(result[0][3]) << endl;
-      // cout << hex << int(result[1][0]) << ", " << int(result[1][1]) << ", "  << int(result[1][2]) << ", "  << int(result[1][3]) << endl;
-      // cout << hex << int(result[2][0]) << ", " << int(result[2][1]) << ", "  << int(result[2][2]) << ", "  << int(result[2][3]) << endl;
-      // cout << hex << int(result[3][0]) << ", " << int(result[3][1]) << ", "  << int(result[3][2]) << ", "  << int(result[3][3]) << endl;
     }
     else{
       for(int k = 0; k < 4; k++){
@@ -299,10 +262,6 @@ vector<uint8_t> Encrypt(const string& input){
         grid[k][j] = result[k][j];
       }
     }
-    // cout << hex << "[ " << int(grid[0][0]) << " | " << int(grid[0][1]) << " | " << int(grid[0][2]) << " | " << int(grid[0][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[1][0]) << " | " << int(grid[1][1]) << " | " << int(grid[1][2]) << " | " << int(grid[1][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[2][0]) << " | " << int(grid[2][1]) << " | " << int(grid[2][2]) << " | " << int(grid[2][3]) << " |" << endl;
-    // cout << hex << "| " << int(grid[3][0]) << " | " << int(grid[3][1]) << " | " << int(grid[3][2]) << " | " << int(grid[3][3]) << " ]" << endl;
   }
   vector<uint8_t> cipher;
   for(int c = 0; c < 4; c++){
@@ -660,34 +619,6 @@ int main() {
 
     cout << "You have successfully exited the menu" << endl;
 
-
-
-  // result = Decrypt(result);
-  // cout << result << endl;
-  
-
-
-	// uint8_t grid[4][4] = {{0xd4, 0xd4, 0xd4, 0xd4}, 
-  //                     {0xbf, 0xbf, 0xbf, 0xbf}, 
-  //                     {0x5d, 0x5d, 0x5d, 0x5d}, 
-  //                     {0x30, 0x30, 0x30, 0x30}};
-  // vector<vector<uint8_t>> result = {{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0},{0, 0, 0, 0}};
-  // MixColumns(grid, result);
-  // cout << hex << int(result[0][0]) << endl;
-  // cout << hex << int(result[0][0]) << ", " << int(result[0][1]) << ", "  << int(result[0][2]) << ", "  << int(result[0][3]) << endl;
-  // cout << hex << int(result[1][0]) << ", " << int(result[1][1]) << ", "  << int(result[1][2]) << ", "  << int(result[1][3]) << endl;
-  // cout << hex << int(result[2][0]) << ", " << int(result[2][1]) << ", "  << int(result[2][2]) << ", "  << int(result[2][3]) << endl;
-  // cout << hex << int(result[3][0]) << ", " << int(result[3][1]) << ", "  << int(result[3][2]) << ", "  << int(result[3][3]) << endl;
- 
- 
- // vector<string> keys;
-  // ExpandKey(key, keys);
-  // for(int i = 0; i < keys.size(); i++){
-  //   for(int j = 0; j < 16; j++){
-  //     cout << hex << int(keys.at(i).at(j)) << ", ";
-  //   }
-  //   cout << endl;
-  // }
   return 0;
 }
 
