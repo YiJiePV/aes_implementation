@@ -16,7 +16,7 @@ using std::vector;
 //192 bit key - 12 rounds
 //256 bit key - 14 rounds
 const string key = "Thats my Kung Fu";
-const string text = "Two One Nine Two";
+// const string text = "Two One Nine Two";
 //list of all possible 8bits
 // const uint8_t sbox[256] = {
 //   0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -566,16 +566,19 @@ int main() {
         if (option == 1) {
             cout << "Choose a file to encrypt" << endl;
             cin >> readfile;
-
             // Read the contents of the file into a string
 	    std::ifstream MyReadFile(readfile);
+            while(!MyReadFile.is_open() || readfile.substr(readfile.size() - 4, 4) != ".txt"){
+              MyReadFile.close();
+              cout << "Error when reading file, please input a .txt file" << endl;
+              cout << "Choose a file to encrypt" << endl;
+              cin >> readfile;
+              MyReadFile.open(readfile);
+            }
       std::ostringstream ss;
             ss << MyReadFile.rdbuf();
             string text = ss.str();
             
-            // while (getline (MyReadFile, line)) {
-            //     text += line + "\n"; 
-            // }
             MyReadFile.close();
 
             // Encrypt the text and write it to a new file (text to binary)
@@ -611,7 +614,13 @@ int main() {
             cin >> readfile;
 
             // Read the contents of the file into a vector
-	          FILE* fp = fopen(readfile.c_str(), "rb");
+	          FILE* fp;
+            while(!(fp = fopen(readfile.c_str(), "rb")) || readfile.substr(readfile.size() - 4, 4) != ".bin"){
+              fclose(fp);
+              cout << "Error when reading file, please input a .bin file" << endl;
+              cout << "Choose a file to encrypt" << endl;
+              cin >> readfile;
+            }
             uint8_t ch;
             vector<uint8_t> line;
             int done = fread(&ch, sizeof(uint8_t), 1, fp);
@@ -640,7 +649,7 @@ int main() {
                 i += 16;
               }
             }
-            string writefile = "Decrypted_" + readfile.substr(0, readfile.length() - 4) + ".txt";
+            string writefile = "decrypted_" + readfile.substr(0, readfile.length() - 4) + ".txt";
             Writefile(writefile, result);
             cout << "Decryption complete. Output written to file: " << writefile << endl;	
 		
