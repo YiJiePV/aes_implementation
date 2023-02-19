@@ -520,12 +520,19 @@ string Decrypt(vector<uint8_t> cipher){
   }
   AddKeyFirst(grid, keys.at(0));
   string text = "";
+  int starFactor = 0; //extra * placeholders
   for(int c = 0; c < 4; c++){
     for(int r = 0; r < 4; r++){
+      if(grid[r][c] == '*'){
+        starFactor++;
+      }
+      else{
+        starFactor = 0;
+      }
       text.push_back(char(grid[r][c]));
     }
   }
-  return text; //regular text
+  return text.substr(0, 16 - starFactor); //regular text
 }
 
 void Writefile(string fileName, string text) {
@@ -548,7 +555,7 @@ int main() {
 	string result;
 	 int option;
     string readfile;
-    string text;
+    
 
     do {
         cout << "Please choose what you would like to do" << endl;
@@ -564,7 +571,7 @@ int main() {
 	    std::ifstream MyReadFile(readfile);
       std::ostringstream ss;
             ss << MyReadFile.rdbuf();
-            string line = ss.str();
+            string text = ss.str();
             
             // while (getline (MyReadFile, line)) {
             //     text += line + "\n"; 
@@ -607,11 +614,11 @@ int main() {
 	          FILE* fp = fopen(readfile.c_str(), "rb");
             uint8_t ch;
             vector<uint8_t> line;
-            int done;
-            do{
-                done = fread(&ch, sizeof(uint8_t), 1, fp);
-                line.push_back(ch);
-            }while (done != 0);
+            int done = fread(&ch, sizeof(uint8_t), 1, fp);
+            while(done != 0){
+              line.push_back(ch);
+              done = fread(&ch, sizeof(uint8_t), 1, fp);
+            }
             fclose(fp);
 
             // Decrypt the text and write it to a new file
@@ -620,15 +627,17 @@ int main() {
               result = Decrypt(line);
             }
             else{
-              for(int i = 0; i < line.size(); i += 16){
-                if(i + 15 > line.size()){
+              int i = 0;
+              while(i < line.size()){
+                if(i + 16 > line.size()){
                   vector<uint8_t> temp(line.begin() + i, line.end());
                   result.append(Decrypt(temp));
                 }
                 else{
-                  vector<uint8_t> temp(line.begin() + i, line.begin() + i + 15);
+                  vector<uint8_t> temp(line.begin() + i, line.begin() + i + 16);
                   result.append(Decrypt(temp));
                 }
+                i += 16;
               }
             }
             string writefile = "Decrypted_" + readfile.substr(0, readfile.length() - 4) + ".txt";
