@@ -527,7 +527,7 @@ int main() {
             cin >> readfile;
             // Read the contents of the file into a string
 	    std::ifstream MyReadFile(readfile);
-            while(!MyReadFile.is_open() || readfile.substr(readfile.size() - 4, 4) != ".txt"){
+	     while(!MyReadFile.is_open() || readfile.substr(readfile.size() - 4, 4) != ".txt"){
               MyReadFile.close();
               cout << "Error when reading file, please input a .txt file" << endl;
               cout << "Choose a file to encrypt" << endl;
@@ -570,16 +570,21 @@ int main() {
             cout << "Encryption complete. Output written to file: " << writefile << endl;
         } else if (option == 2) { 
             cout << "Choose a file to decrypt" << endl;
-            cin >> readfile;
+	cin >> readfile;
 
-            // Read the contents of the file into a vector
-	          FILE* fp;
-            while(!(fp = fopen(readfile.c_str(), "rb")) || readfile.substr(readfile.size() - 4, 4) != ".bin"){
-              fclose(fp);
-              cout << "Error when reading file, please input a .bin file" << endl;
-              cout << "Choose a file to encrypt" << endl;
-              cin >> readfile;
-            }
+	FILE* fp = nullptr;
+	while (true) {
+	  fp = fopen(readfile.c_str(), "rb");
+	  if (fp != nullptr && readfile.substr(readfile.size() - 4, 4) == ".bin") {
+	    break;
+	  }
+	  if (fp != nullptr) {
+	    fclose(fp);
+	  }
+	  cout << "Error when reading file, please input a .bin file" << endl;
+	  cout << "Choose a file to decrypt" << endl;
+	  cin >> readfile;
+}
             uint8_t ch;
             vector<uint8_t> line;
             int done = fread(&ch, sizeof(uint8_t), 1, fp);
