@@ -14,7 +14,7 @@ using std::vector;
 
 //128 bit key - 10 rounds
 const string key = "Thats my Kung Fu";
-//list of all possible 8bits
+//list of all possible 8bits (encryption)
 const uint8_t sbox[256] =
 {
 	0x63, 0x7C, 0x77, 0x7B, 0xF2, 0x6B, 0x6F, 0xC5, 0x30, 0x01, 0x67, 0x2B, 0xFE, 0xD7, 0xAB, 0x76,
@@ -34,7 +34,7 @@ const uint8_t sbox[256] =
 	0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,
 	0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16
 };
-//Function to substitute the bytes
+//Function to substitute the bytes (encryption)
 void SubBytes(uint8_t matrix[4][4]) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
@@ -43,7 +43,7 @@ void SubBytes(uint8_t matrix[4][4]) {
   }
 }
 
-/// Function to Shift the rows
+/// Function to Shift the rows (encryption)
 void ShiftRows(uint8_t matrix[4][4]) {
   uint8_t temp[4];
   // Shift first row by 0
@@ -73,9 +73,8 @@ void ShiftRows(uint8_t matrix[4][4]) {
   }
 }
 
-//Function to do multiplication of number to grid element
+//Function to do multiplication of number to grid element (encryption only)
 uint8_t MultiplyChar(uint8_t c, int i){
-  //for encryption (plus the return at the very end)
   if(i == 2){
     int bit = (c >> 7);
     if(bit){
@@ -89,22 +88,13 @@ uint8_t MultiplyChar(uint8_t c, int i){
       return (c << 1)^0x1B^c;
     }
     return (c << 1)^c;
-  }//for decryption
-  else if(i == 9){
-    return (c << 3)^c;
   }
-  else if(i == 11){
-    return (((c << 2)^c) << 1)^c;
+  else if(i == 1){
+    return c;
   }
-  else if(i == 13){
-    return (((c << 1)^c) << 2)^c;
-  }
-  else if(i == 14){
-    return ((((c << 1)^c) << 1)^c) << 1;
-  }
-  return c; //i == 1
+  return 0xff; //arbitrary value for when i != 1, 2, or 3 (should not happen)
 }
-
+//Function for performing MixColumns (encryption)
 void MixColumns(uint8_t grid[4][4], vector<vector<uint8_t>>& output){
   int matrix[4][4] = {{2, 3, 1, 1},
                       {1, 2, 3, 1},
@@ -141,7 +131,7 @@ const uint8_t rcon[256] = {
 	0xc6, 0x97, 0x35, 0x6a, 0xd4, 0xb3, 0x7d, 0xfa, 0xef, 0xc5, 0x91, 0x39, 0x72, 0xe4, 0xd3, 0xbd,
 	0x61, 0xc2, 0x9f, 0x25, 0x4a, 0x94, 0x33, 0x66, 0xcc, 0x83, 0x1d, 0x3a, 0x74, 0xe8, 0xcb, 0x8d
 };
-
+//shifts elements of input to the left (for ExpandKey)
 void LeftShift(uint8_t input[]){
   uint8_t temp = input[0];
   input[0] = input[1];
@@ -149,14 +139,14 @@ void LeftShift(uint8_t input[]){
   input[2] = input[3];
   input[3] = temp;
 }
-
+//replaces each element of input with corresponding value in sbox (for ExpandKey)
 void SBoxReplace(uint8_t input[]){
   input[0] = sbox[input[0]];
   input[1] = sbox[input[1]];
   input[2] = sbox[input[2]];
   input[3] = sbox[input[3]];
 }
-
+//gets 11 expanded keys for encryption
 void ExpandKey(string key, vector<string>& keys){
   keys.push_back(key);
   uint8_t lastKey[16];
@@ -193,7 +183,7 @@ void ExpandKey(string key, vector<string>& keys){
     }
   }
 }
-
+//Function for adding key to grid (2D vector version)
 void AddKey(vector<vector<uint8_t>>& grid, string key){
   int index = 0;
   for(int i = 0; i < 4; i++){
@@ -203,7 +193,7 @@ void AddKey(vector<vector<uint8_t>>& grid, string key){
     }
   }
 }
-
+//Function for adding key to grid (2D array version)
 void AddKeyFirst(uint8_t grid[4][4], string key){
   int index = 0;
   for(int i = 0; i < 4; i++){
@@ -271,6 +261,7 @@ vector<uint8_t> Encrypt(const string& input){
   }
   return cipher; //regular text
 }
+//Table for multiplying by 9 ('cause the math is too complicated)
 uint8_t multiply9[256] =
 {
 	0x00,0x09,0x12,0x1b,0x24,0x2d,0x36,0x3f,0x48,0x41,0x5a,0x53,0x6c,0x65,0x7e,0x77,
@@ -290,6 +281,7 @@ uint8_t multiply9[256] =
   0xa1,0xa8,0xb3,0xba,0x85,0x8c,0x97,0x9e,0xe9,0xe0,0xfb,0xf2,0xcd,0xc4,0xdf,0xd6,
   0x31,0x38,0x23,0x2a,0x15,0x1c,0x07,0x0e,0x79,0x70,0x6b,0x62,0x5d,0x54,0x4f,0x46
 };
+//Table multiplying by 11 ('cause the math is too complicated)
 uint8_t multiply11[256] =
 {
 	0x00,0x0b,0x16,0x1d,0x2c,0x27,0x3a,0x31,0x58,0x53,0x4e,0x45,0x74,0x7f,0x62,0x69,
@@ -309,6 +301,7 @@ uint8_t multiply11[256] =
   0x7a,0x71,0x6c,0x67,0x56,0x5d,0x40,0x4b,0x22,0x29,0x34,0x3f,0x0e,0x05,0x18,0x13,
   0xca,0xc1,0xdc,0xd7,0xe6,0xed,0xf0,0xfb,0x92,0x99,0x84,0x8f,0xbe,0xb5,0xa8,0xa3
 };
+//Table multiplying by 13 ('cause the math is too complicated)
 uint8_t multiply13[256] =
 {
 	0x00,0x0d,0x1a,0x17,0x34,0x39,0x2e,0x23,0x68,0x65,0x72,0x7f,0x5c,0x51,0x46,0x4b,
@@ -328,6 +321,7 @@ uint8_t multiply13[256] =
   0x0c,0x01,0x16,0x1b,0x38,0x35,0x22,0x2f,0x64,0x69,0x7e,0x73,0x50,0x5d,0x4a,0x47,
   0xdc,0xd1,0xc6,0xcb,0xe8,0xe5,0xf2,0xff,0xb4,0xb9,0xae,0xa3,0x80,0x8d,0x9a,0x97
 };
+//Table multiplying by 14 ('cause the math is too complicated)
 uint8_t multiply14[256] =
 {
 	0x00,0x0e,0x1c,0x12,0x38,0x36,0x24,0x2a,0x70,0x7e,0x6c,0x62,0x48,0x46,0x54,0x5a,
@@ -347,6 +341,7 @@ uint8_t multiply14[256] =
   0x37,0x39,0x2b,0x25,0x0f,0x01,0x13,0x1d,0x47,0x49,0x5b,0x55,0x7f,0x71,0x63,0x6d,
   0xd7,0xd9,0xcb,0xc5,0xef,0xe1,0xf3,0xfd,0xa7,0xa9,0xbb,0xb5,0x9f,0x91,0x83,0x8d
 };
+//Function for performing inverse of MixColumns (decryption)
 void InverseMixColumns(uint8_t grid[4][4], vector<vector<uint8_t>>& output){
   int matrix[4][4] = {{14, 11, 13, 9},
                       {9, 14, 11, 13},
@@ -355,9 +350,9 @@ void InverseMixColumns(uint8_t grid[4][4], vector<vector<uint8_t>>& output){
   
   uint8_t r0 = 0;
   for(int i = 0; i < 4; i++){//each column of grid
-    for(int j = 0; j < 4; j++){//row
+    for(int j = 0; j < 4; j++){
       r0 = 0;
-      for(int k = 0; k < 4; k++){
+      for(int k = 0; k < 4; k++){//row
         switch (matrix[j][k])
         {
         case 9:
@@ -380,7 +375,7 @@ void InverseMixColumns(uint8_t grid[4][4], vector<vector<uint8_t>>& output){
     }
   }
 }
-/// Function to Shift the rows
+/// Function to inverse Shift the rows (decryption)
 void InverseShiftRows(uint8_t matrix[4][4]) {
   uint8_t temp[4];
   // Shift first row by 0
@@ -429,6 +424,7 @@ uint8_t insbox[256] =
 	0xA0, 0xE0, 0x3B, 0x4D, 0xAE, 0x2A, 0xF5, 0xB0, 0xC8, 0xEB, 0xBB, 0x3C, 0x83, 0x53, 0x99, 0x61,
 	0x17, 0x2B, 0x04, 0x7E, 0xBA, 0x77, 0xD6, 0x26, 0xE1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0C, 0x7D
 };
+//Function to inverse substitute the bytes (decryption)
 void InverseSubBytes(uint8_t matrix[4][4]) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
@@ -472,17 +468,13 @@ string Decrypt(vector<uint8_t> cipher){
     InverseShiftRows(grid);
     //4. Inverse SubByte
     InverseSubBytes(grid);
-  /*[ 1 | 3a | 8c | 21 |
-    | 3e | b0 | e2 | 33 |
-    | 8e | 4 | 3d | b8 |
-    | a7 | bc | 4d | 1c ]*/
   }
   AddKeyFirst(grid, keys.at(0));
   string text = "";
   int starFactor = 0; //extra * placeholders
   for(int c = 0; c < 4; c++){
     for(int r = 0; r < 4; r++){
-      if(grid[r][c] == '*'){
+      if(grid[r][c] == '*'){ //keeps track of extra *s (may be inaccurate....)
         starFactor++;
       }
       else{
@@ -509,7 +501,7 @@ void Writefile(string fileName, string text) {
     }
 }
 
-//command line user interface
+//command line user interface + file input/output
 int main() {
 	string result;
 	 int option;
@@ -526,18 +518,18 @@ int main() {
             cout << "Choose a file to encrypt" << endl;
             cin >> readfile;
             // Read the contents of the file into a string
-	    std::ifstream MyReadFile(readfile);
-	     while(!MyReadFile.is_open() || readfile.substr(readfile.size() - 4, 4) != ".txt"){
-              MyReadFile.close();
-              cout << "Error when reading file, please input a .txt file" << endl;
-              cout << "Choose a file to encrypt" << endl;
-              cin >> readfile;
-              MyReadFile.open(readfile);
+            std::ifstream MyReadFile(readfile);
+            while(!MyReadFile.is_open() || readfile.substr(readfile.size() - 4, 4) != ".txt"){
+                  MyReadFile.close();
+                  cout << "Error when reading file, please input a .txt file" << endl;
+                  cout << "Choose a file to encrypt" << endl;
+                  cin >> readfile;
+                  MyReadFile.open(readfile);
             }
-      std::ostringstream ss;
+            std::ostringstream ss;
             ss << MyReadFile.rdbuf();
             string text = ss.str();
-            
+                
             MyReadFile.close();
 
             // Encrypt the text and write it to a new file (text to binary)
@@ -570,21 +562,21 @@ int main() {
             cout << "Encryption complete. Output written to file: " << writefile << endl;
         } else if (option == 2) { 
             cout << "Choose a file to decrypt" << endl;
-	cin >> readfile;
+            cin >> readfile;
 
-	FILE* fp = nullptr;
-	while (true) {
-	  fp = fopen(readfile.c_str(), "rb");
-	  if (fp != nullptr && readfile.substr(readfile.size() - 4, 4) == ".bin") {
-	    break;
-	  }
-	  if (fp != nullptr) {
-	    fclose(fp);
-	  }
-	  cout << "Error when reading file, please input a .bin file" << endl;
-	  cout << "Choose a file to decrypt" << endl;
-	  cin >> readfile;
-}
+            FILE* fp = nullptr;
+            while (true) {
+              fp = fopen(readfile.c_str(), "rb");
+              if (fp != nullptr && readfile.substr(readfile.size() - 4, 4) == ".bin") {
+                break;
+              }
+              if (fp != nullptr) {
+                fclose(fp);
+              }
+              cout << "Error when reading file, please input a .bin file" << endl;
+              cout << "Choose a file to decrypt" << endl;
+              cin >> readfile;
+            }
             uint8_t ch;
             vector<uint8_t> line;
             int done = fread(&ch, sizeof(uint8_t), 1, fp);
